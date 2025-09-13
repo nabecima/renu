@@ -10,24 +10,52 @@
   p {
     position: absolute;
     width: 100%;
+    color: #ea2020;
     @include responsive-value(font-size, 102px, 750px, 120px);
     text-align: center;
     letter-spacing: 0.02em;
 
     span {
       position: relative;
+      display: inline-block;
+      width: 2ch;
+      text-align: center;
 
       &::after {
-        content: "日";
         position: absolute;
         left: 50%;
-        @include responsive-value(bottom, -11px, 750px, -11px);
+        @include responsive-value(bottom, -27px, 750px, -27px);
         translate: -50% 0;
+        width: 100%;
         font-family: "Noto Sans JP", sans-serif;
         font-optical-sizing: auto;
         font-weight: 500;
         font-style: normal;
         @include responsive-value(font-size, 28px, 750px, 28px);
+      }
+
+      &.day {
+        &::after {
+          content: "日";
+        }
+      }
+
+      &.hour {
+        &::after {
+          content: "時間";
+        }
+      }
+
+      &.min {
+        &::after {
+          content: "分";
+        }
+      }
+
+      &.sec {
+        &::after {
+          content: "秒";
+        }
       }
     }
   }
@@ -35,6 +63,12 @@
   &1 {
     p {
       @include responsive-value(bottom, 80px, 750px, 80px);
+    }
+  }
+
+  &2 {
+    p {
+      @include responsive-value(bottom, 219px, 750px, 219px);
     }
   }
 }
