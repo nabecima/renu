@@ -1,0 +1,40 @@
+@use "../../foundation" as *;
+
+.cta {
+  &1 {
+    position: relative;
+
+    .btn {
+      @include responsive-value(bottom, 72px, 750px, 72px);
+      width: 83.6%;
+    }
+  }
+
+  &2 {
+    position: relative;
+
+    .btn {
+      @include responsive-value(bottom, 74px, 750px, 74px);
+      width: 60.5333%;
+    }
+  }
+
+  &3 {
+    position: relative;
+
+    .btn {
+      left: auto;
+      @include responsive-value(right, 76px, 750px, 76px);
+      @include responsive-value(bottom, 230px, 750px, 230px);
+      translate: none;
+      width: 55.8667%;
+    }
+
+    .line {
+      position: absolute;
+      left: 0;
+      @include responsive-value(bottom, 18px, 750px, 18px);
+      width: 100%;
+    }
+  }
+}

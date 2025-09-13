@@ -1,0 +1,364 @@
+@use "sass:map";
+@use "variables" as v;
+@use "functions" as f;
+
+// ================================
+// Mixins
+// ================================
+
+// 従来のメディアクエリ用Mixin（フォールバック用）
+@mixin mq($breakpoint, $type: max) {
+  @if map.has-key(v.$breakpoints, $breakpoint) {
+    $bp-value: map.get(v.$breakpoints, $breakpoint);
+
+    @if $type == max {
+      @media (max-width: $bp-value) {
+        @content;
+      }
+    } @else if $type == min {
+      @media (min-width: #{$bp-value + 1}) {
+        @content;
+      }
+    } @else {
+      @warn "Invalid type: #{$type}. Use 'max' or 'min'.";
+    }
+  } @else {
+    @warn "Unknown breakpoint: #{$breakpoint}";
+  }
+}
+
+// コンテナクエリ用Mixin
+@mixin cq($breakpoint, $type: max, $container: null) {
+  @if map.has-key(v.$container-breakpoints, $breakpoint) {
+    $bp-value: map.get(v.$container-breakpoints, $breakpoint);
+
+    // コンテナ名が指定されている場合
+    $container-selector: if($container, $container, "");
+
+    @if $type == max {
+      @container #{$container-selector} (max-width: #{$bp-value}) {
+        @content;
+      }
+    } @else if $type == min {
+      @container #{$container-selector} (min-width: #{$bp-value + 1}) {
+        @content;
+      }
+    } @else {
+      @warn "Invalid type: #{$type}. Use 'max' or 'min'.";
+    }
+  } @else {
+    @warn "Unknown container breakpoint: #{$breakpoint}";
+  }
+}
+
+// コンテナベース計算用Mixin
+@mixin container-calc($property, $base-value, $breakpoint, $unit: 100cqw) {
+  $bp-value: f.strip-unit(map.get(v.$container-breakpoints, $breakpoint));
+  #{$property}: calc(#{$base-value} / #{$bp-value} * #{$unit});
+}
+
+// レスポンシブ高さ用Mixin（コンテナクエリ版）
+@mixin responsive-height-cq($height-var: --h, $container: null) {
+  // lg未満の場合のみ基本の height を設定
+  @if f.has-container-breakpoint(lg) {
+    @container #{$container} (max-width: #{map.get(v.$container-breakpoints, lg) - 1}) {
+      height: calc(var(#{$height-var}) * 1px);
+    }
+  } @else {
+    height: calc(var(#{$height-var}) * 1px);
+  }
+
+  @if f.has-container-breakpoint(content) {
+    @include cq(content, max, $container) {
+      @include container-calc(height, var(#{$height-var}), content, 100cqw);
+    }
+
+    @include cq(sm, max, $container) {
+      height: auto;
+    }
+
+    @if f.has-container-breakpoint(lg) {
+      @include cq(lg, min, $container) {
+        height: auto;
+      }
+    }
+  } @else {
+    @include cq(sm, max, $container) {
+      height: auto;
+    }
+
+    @if f.has-container-breakpoint(lg) {
+      @include cq(lg, min, $container) {
+        height: auto;
+      }
+    }
+  }
+}
+
+// レスポンシブマージン用Mixin（コンテナクエリ版）
+@mixin responsive-margin-cq($container: null) {
+  margin-top: -5px;
+
+  @if f.has-container-breakpoint(content) {
+    @include cq(content, max, $container) {
+      @include container-calc(margin-top, -5, content, 100cqw);
+    }
+
+    @include cq(sm, max, $container) {
+      @include container-calc(margin-top, -4, sm, 100cqw);
+    }
+
+    @if f.has-container-breakpoint(lg) {
+      @include cq(lg, min, $container) {
+        @include container-calc(margin-top, -5, lg, 100cqw);
+      }
+    }
+  } @else {
+    @include cq(sm, max, $container) {
+      @include container-calc(margin-top, -5, sm, 100cqw);
+    }
+
+    @if f.has-container-breakpoint(lg) {
+      @include cq(lg, min, $container) {
+        @include container-calc(margin-top, -5, lg, 100cqw);
+      }
+    }
+  }
+}
+
+// レスポンシブ計算用Mixin（従来版も保持）
+@mixin responsive-calc($property, $base-value, $breakpoint, $unit: 100vw) {
+  $bp-value: f.strip-unit(map.get(v.$breakpoints, $breakpoint));
+  #{$property}: calc(#{$base-value} / #{$bp-value} * #{$unit});
+}
+
+// ハイブリッド版（コンテナクエリ + メディアクエリフォールバック）
+@mixin responsive-height(
+  $height-var: --h,
+  $use-container: true,
+  $container: null
+) {
+  // lg未満の場合のみ基本の height を設定
+  @if f.has-breakpoint(lg) {
+    @media (max-width: #{map.get(v.$breakpoints, lg) - 1}) {
+      height: calc(var(#{$height-var}) * 1px);
+    }
+  } @else {
+    height: calc(var(#{$height-var}) * 1px);
+  }
+
+  @if $use-container {
+    // コンテナクエリをサポートしている場合
+    @supports (container-type: inline-size) {
+      @if f.has-container-breakpoint(content) {
+        @include cq(content, max, $container) {
+          @include container-calc(height, var(#{$height-var}), content, 100cqw);
+        }
+
+        @include cq(sm, max, $container) {
+          height: auto;
+        }
+
+        @if f.has-container-breakpoint(lg) {
+          @include cq(lg, min, $container) {
+            height: auto;
+          }
+        }
+      } @else {
+        @include cq(sm, max, $container) {
+          height: auto;
+        }
+
+        @if f.has-container-breakpoint(lg) {
+          @include cq(lg, min, $container) {
+            height: auto;
+          }
+        }
+      }
+    }
+
+    // フォールバック（コンテナクエリ非対応ブラウザ用）
+    @supports not (container-type: inline-size) {
+      @if f.has-breakpoint(content) {
+        @include mq(content) {
+          @include responsive-calc(height, var(#{$height-var}), content);
+        }
+
+        @include mq(sm) {
+          height: auto;
+        }
+
+        @if f.has-breakpoint(lg) {
+          @include mq(lg, min) {
+            height: auto;
+          }
+        }
+      } @else {
+        @include mq(sm) {
+          height: auto;
+        }
+
+        @if f.has-breakpoint(lg) {
+          @include mq(lg, min) {
+            height: auto;
+          }
+        }
+      }
+    }
+  } @else {
+    // 従来のメディアクエリを使用
+    @if f.has-breakpoint(content) {
+      @include mq(content) {
+        @include responsive-calc(height, var(#{$height-var}), content);
+      }
+
+      @include mq(sm) {
+        height: auto;
+      }
+
+      @if f.has-breakpoint(lg) {
+        @include mq(lg, min) {
+          height: auto;
+        }
+      }
+    } @else {
+      @include mq(sm) {
+        height: auto;
+      }
+
+      @if f.has-breakpoint(lg) {
+        @include mq(lg, min) {
+          height: auto;
+        }
+      }
+    }
+  }
+}
+
+// レスポンシブマージン用Mixin（ハイブリッド版）
+@mixin responsive-margin($use-container: true, $container: null) {
+  margin-top: -5px;
+
+  @if $use-container {
+    // コンテナクエリをサポートしている場合
+    @supports (container-type: inline-size) {
+      @include responsive-margin-cq($container);
+    }
+
+    // フォールバック（コンテナクエリ非対応ブラウザ用）
+    @supports not (container-type: inline-size) {
+      @if f.has-breakpoint(content) {
+        @include mq(content) {
+          @include responsive-calc(margin-top, -5, content);
+        }
+
+        @include mq(sm) {
+          @include responsive-calc(margin-top, -4, sm);
+        }
+
+        @if f.has-breakpoint(lg) {
+          @include mq(lg, min) {
+            @include responsive-calc(margin-top, -5, lg);
+          }
+        }
+      } @else {
+        @include mq(sm) {
+          @include responsive-calc(margin-top, -5, sm);
+        }
+
+        @if f.has-breakpoint(lg) {
+          @include mq(lg, min) {
+            @include responsive-calc(margin-top, -5, lg);
+          }
+        }
+      }
+    }
+  } @else {
+    // 従来のメディアクエリを使用
+    @if f.has-breakpoint(content) {
+      @include mq(content) {
+        @include responsive-calc(margin-top, -5, content);
+      }
+
+      @include mq(sm) {
+        @include responsive-calc(margin-top, -4, sm);
+      }
+
+      @if f.has-breakpoint(lg) {
+        @include mq(lg, min) {
+          @include responsive-calc(margin-top, -5, lg);
+        }
+      }
+    } @else {
+      @include mq(sm) {
+        @include responsive-calc(margin-top, -5, sm);
+      }
+
+      @if f.has-breakpoint(lg) {
+        @include mq(lg, min) {
+          @include responsive-calc(margin-top, -5, lg);
+        }
+      }
+    }
+  }
+}
+
+// 画像の基本スタイル用Mixin
+@mixin img-base {
+  display: block;
+  width: 100%;
+  object-fit: cover;
+
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  pointer-events: none;
+}
+
+// レスポンシブ値用Mixin（コンテナクエリ優先、vwフォールバック）
+@mixin responsive-value(
+  $property,
+  $px-value,
+  $base-width: 750px,
+  $max-value: null
+) {
+  // コンテナクエリをサポートしている場合
+  @supports (container-type: inline-size) {
+    // base-width基準でレスポンシブ値
+    #{$property}: f.to-cqw($px-value, $base-width, $max-value);
+
+    // base-width以上lg未満: 固定値
+    @include cq(#{f.strip-unit($base-width)}px, min) {
+      #{$property}: $px-value;
+    }
+
+    // lg以上: lg基準の値（lgブレークポイントが存在する場合のみ）
+    @if f.has-container-breakpoint(lg) {
+      @include cq(lg, min) {
+        #{$property}: f.to-cqw(
+          $px-value,
+          map.get(v.$container-breakpoints, lg)
+        );
+      }
+    }
+  }
+
+  // フォールバック（コンテナクエリ非対応ブラウザ用）
+  @supports not (container-type: inline-size) {
+    // base-width基準でレスポンシブ値
+    #{$property}: f.to-vw($px-value, $base-width, $max-value);
+
+    // base-width以上lg未満: 固定値
+    @include mq(#{f.strip-unit($base-width)}px, min) {
+      #{$property}: $px-value;
+    }
+
+    // lg以上: lg基準の値（lgブレークポイントが存在する場合のみ）
+    @if f.has-breakpoint(lg) {
+      @include mq(lg, min) {
+        #{$property}: f.to-vw($px-value, map.get(v.$breakpoints, lg));
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+# Dependencies
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+.pnpm-debug.log
+package-lock.json
+yarn.lock
+.pnp.*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build directories
+/dist
+/build
+/out
+/.next
+/.nuxt
+
+# Coverage directory
+/coverage
+
+# macOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Optional: Logs
+logs
+*.log
+
+# Optional: Local configuration files
+.npmrc
+.yarnrc
+
+# Other
+myenv
+lp
+.zip
+.vscode
+
+# Generated ZIP files
+*.zip

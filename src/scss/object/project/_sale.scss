@@ -1,0 +1,40 @@
+@use "../../foundation/" as *;
+
+.sale {
+  position: relative;
+  font-family: "Oswald", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+
+  p {
+    position: absolute;
+    width: 100%;
+    @include responsive-value(font-size, 102px, 750px, 120px);
+    text-align: center;
+    letter-spacing: 0.02em;
+
+    span {
+      position: relative;
+
+      &::after {
+        content: "日";
+        position: absolute;
+        left: 50%;
+        @include responsive-value(bottom, -11px, 750px, -11px);
+        translate: -50% 0;
+        font-family: "Noto Sans JP", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 500;
+        font-style: normal;
+        @include responsive-value(font-size, 28px, 750px, 28px);
+      }
+    }
+  }
+
+  &1 {
+    p {
+      @include responsive-value(bottom, 80px, 750px, 80px);
+    }
+  }
+}

@@ -1,0 +1,7 @@
+@use "../foundation/" as *;
+
+.footer {
+  * {
+    margin-block: calc((1em - 1lh) / 2);
+  }
+}

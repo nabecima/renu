@@ -1,0 +1,6 @@
+// Foundation Entry Point
+@forward "reset";      // CSSリセット（最初に読み込み）
+@forward "variables";
+@forward "functions";
+@forward "mixins";
+@forward "base";

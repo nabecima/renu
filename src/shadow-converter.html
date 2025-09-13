@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Photoshopドロップシャドウ変換ツール</title>
+    <style>
+      :root {
+        --primary-color: #3498db;
+        --secondary-color: #2c3e50;
+        --background-color: #f8f9fa;
+        --border-color: #dee2e6;
+        --shadow-color: rgba(0, 0, 0, 0.1);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: var(--background-color);
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px var(--shadow-color);
+      }
+
+      h1 {
+        color: var(--secondary-color);
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .description {
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .converter {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+      }
+
+      .input-section,
+      .output-section {
+        flex: 1;
+        min-width: 300px;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+      }
+
+      input[type="number"],
+      input[type="text"] {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 16px;
+      }
+
+      input[type="color"] {
+        width: 50px;
+        height: 30px;
+        vertical-align: middle;
+      }
+
+      button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #2980b9;
+      }
+
+      .output-box {
+        background-color: #f8f9fa;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 15px;
+        margin-top: 15px;
+        white-space: pre-wrap;
+        font-family: "Courier New", Courier, monospace;
+        height: 220px;
+        overflow-y: auto;
+      }
+
+      .copy-btn {
+        background-color: #6c757d;
+        margin-top: 10px;
+        font-size: 14px;
+      }
+
+      .copy-btn:hover {
+        background-color: #5a6268;
+      }
+
+      .separator {
+        margin: 20px 0;
+        border-top: 1px solid var(--border-color);
+      }
+
+      @media (max-width: 768px) {
+        .converter {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Photoshop Drop Shadow to CSS Converter</h1>
+      <p class="description">Convert Photoshop drop shadow settings to CSS box-shadow and text-shadow properties</p>
+
+      <div class="converter">
+        <div class="input-section">
+          <h2>Photoshop Settings</h2>
+          <div class="form-group">
+            <label for="color">Shadow Color:</label>
+            <input type="color" id="color" value="#000000" />
+            <input type="text" id="color-hex" placeholder="#000000" value="#000000" />
+          </div>
+          <div class="form-group">
+            <label for="opacity">Opacity (%):</label>
+            <input type="number" id="opacity" min="0" max="100" value="75" />
+          </div>
+          <div class="form-group">
+            <label for="angle">Angle (degrees):</label>
+            <input type="number" id="angle" value="120" />
+          </div>
+          <div class="form-group">
+            <label for="distance">Distance (px):</label>
+            <input type="number" id="distance" min="0" value="5" />
+          </div>
+          <div class="form-group">
+            <label for="spread">Spread (%):</label>
+            <input type="number" id="spread" min="0" max="100" value="0" />
+          </div>
+          <div class="form-group">
+            <label for="size">Size (px):</label>
+            <input type="number" id="size" min="0" value="5" />
+          </div>
+          <button id="convert-btn">Convert to CSS</button>
+        </div>
+
+        <div class="output-section">
+          <h2>CSS Output</h2>
+          <div class="form-group">
+            <label for="box-shadow">box-shadow:</label>
+            <div class="output-box" id="box-shadow"></div>
+            <button class="copy-btn" data-target="box-shadow">Copy</button>
+          </div>
+          <div class="form-group">
+            <label for="filter-shadow">filter: drop-shadow():</label>
+            <div class="output-box" id="filter-shadow"></div>
+            <button class="copy-btn" data-target="filter-shadow">Copy</button>
+          </div>
+          <div class="form-group">
+            <label for="text-shadow">text-shadow:</label>
+            <div class="output-box" id="text-shadow"></div>
+            <button class="copy-btn" data-target="text-shadow">Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="separator"></div>
+
+      <div class="info">
+        <h3>How to use</h3>
+        <ol>
+          <li>Enter your Photoshop drop shadow settings in the left panel</li>
+          <li>Click "Convert to CSS" to generate the CSS code</li>
+          <li>Copy the generated CSS code for use in your project</li>
+        </ol>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Get elements
+        const colorInput = document.getElementById("color");
+        const colorHexInput = document.getElementById("color-hex");
+        const opacityInput = document.getElementById("opacity");
+        const angleInput = document.getElementById("angle");
+        const distanceInput = document.getElementById("distance");
+        const spreadInput = document.getElementById("spread");
+        const sizeInput = document.getElementById("size");
+        const convertBtn = document.getElementById("convert-btn");
+        const boxShadowOutput = document.getElementById("box-shadow");
+        const textShadowOutput = document.getElementById("text-shadow");
+        const filterShadowOutput = document.getElementById("filter-shadow");
+        const copyBtns = document.querySelectorAll(".copy-btn");
+
+        // Sync color input with hex input
+        colorInput.addEventListener("input", function () {
+          colorHexInput.value = this.value;
+        });
+
+        colorHexInput.addEventListener("input", function () {
+          // Check if input is a valid hex color
+          const isValid = /^#([0-9A-F]{3}){1,2}$/i.test(this.value);
+          if (isValid) {
+            colorInput.value = this.value;
+          }
+        });
+
+        // Convert Photoshop settings to CSS
+        convertBtn.addEventListener("click", function () {
+          // Get values
+          const color = colorHexInput.value;
+          const opacity = parseFloat(opacityInput.value) / 100;
+          const angle = parseFloat(angleInput.value);
+          const distance = parseFloat(distanceInput.value);
+          const spread = parseFloat(spreadInput.value);
+          const size = parseFloat(sizeInput.value);
+
+          // Convert to CSS
+          const result = convertToCss(color, opacity, angle, distance, spread, size);
+
+          // Update output
+          boxShadowOutput.textContent = result.boxShadow;
+          textShadowOutput.textContent = result.textShadow;
+          filterShadowOutput.textContent = result.filterShadow;
+        });
+
+        // Copy to clipboard functionality
+        copyBtns.forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const targetId = this.getAttribute("data-target");
+            const targetElement = document.getElementById(targetId);
+            const text = targetElement.textContent;
+
+            navigator.clipboard
+              .writeText(text)
+              .then(() => {
+                const originalText = this.textContent;
+                this.textContent = "Copied!";
+                setTimeout(() => {
+                  this.textContent = originalText;
+                }, 1500);
+              })
+              .catch((err) => {
+                console.error("Failed to copy text: ", err);
+              });
+          });
+        });
+
+        // Function to convert PS settings to CSS
+        function convertToCss(color, opacity, angle, distance, spread, size) {
+          // Convert angle to radians (also adjusting for CSS shadow angle direction)
+          const angleRad = ((180 - angle) * Math.PI) / 180;
+
+          // Calculate horizontal and vertical offsets
+          const offsetX = Math.round(Math.cos(angleRad) * distance);
+          const offsetY = Math.round(Math.sin(angleRad) * distance);
+
+          // Calculate blur radius (size minus the spread radius)
+          const spreadRadius = size * (spread / 100);
+          const blurRadius = size - spreadRadius;
+
+          // Format rgba color
+          const rgbColor = hexToRgb(color);
+          const rgbaColor = `rgba(${rgbColor.r}, ${rgbColor.g}, ${rgbColor.b}, ${opacity.toFixed(2)})`;
+
+          // Create CSS shadow values
+          const boxShadow = `box-shadow: ${offsetX}px ${offsetY}px ${blurRadius}px ${spreadRadius}px ${rgbaColor};`;
+          const textShadow = `text-shadow: ${offsetX}px ${offsetY}px ${blurRadius}px ${rgbaColor};`;
+          const filterShadow = `filter: drop-shadow(${offsetX}px ${offsetY}px ${blurRadius}px ${rgbaColor});`;
+
+          return {
+            boxShadow,
+            textShadow,
+            filterShadow
+          };
+        }
+
+        // Helper function to convert hex to rgb
+        function hexToRgb(hex) {
+          // Remove the # if present
+          hex = hex.replace("#", "");
+
+          // Convert 3-digit hex to 6-digit
+          if (hex.length === 3) {
+            hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+          }
+
+          // Parse the hex values
+          const r = parseInt(hex.substring(0, 2), 16);
+          const g = parseInt(hex.substring(2, 4), 16);
+          const b = parseInt(hex.substring(4, 6), 16);
+
+          return { r, g, b };
+        }
+
+        // Initialize with default values
+        convertBtn.click();
+      });
+    </script>
+  </body>
+</html>

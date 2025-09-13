@@ -1,0 +1,27 @@
+@use "mixins" as m;
+
+// ================================
+// 基本スタイル
+// ================================
+
+html {
+  font-size: 10px;
+}
+
+main{
+  overflow: hidden;
+}
+
+// 基本画像スタイル
+img {
+  @include m.img-base;
+}
+
+// 遅延読み込みiframeスタイル
+.js-lazy-youtube,
+.js-lazy-map {
+  iframe {
+    width: 100%;
+    height: 100%;
+  }
+}

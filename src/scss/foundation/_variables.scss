@@ -1,0 +1,22 @@
+// ================================
+// 設定・変数
+// ================================
+
+// コンテナブレークポイント定義（従来のブレークポイントも保持）
+$breakpoints: (
+  sm: 750px,
+);
+
+// コンテナクエリ用ブレークポイント
+$container-breakpoints: (
+  sm: 750px,
+);
+
+// コンテナ名の定義
+$container-names: (
+  container: "page-container",     // .container用
+  header: "header-container",      // header用
+  main: "main-container",          // main用
+  footer: "footer-container",      // footer用
+  section: "section-container",    // セクション用
+);

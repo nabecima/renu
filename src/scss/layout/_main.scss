@@ -1,0 +1,37 @@
+@use "sass:map";
+@use "../foundation/variables" as v;
+@use "../foundation/functions" as f;
+
+// ================================
+// レイアウトコンポーネント
+// ================================
+
+// ページ全体のコンテナ
+.container {
+  margin: 0 auto;
+  width: if(
+    f.has-breakpoints(content, lg),
+    100%,
+    min(#{map.get(v.$breakpoints, sm)}, 100%)
+  );
+
+  // ページレベルのコンテナクエリを有効化
+  container-type: inline-size;
+  container-name: #{map.get(v.$container-names, container)};
+}
+
+// 各セクションでのコンテナクエリ設定
+header {
+  container-type: inline-size;
+  container-name: #{map.get(v.$container-names, header)};
+}
+
+main {
+  container-type: inline-size;
+  container-name: #{map.get(v.$container-names, main)};
+}
+
+footer {
+  container-type: inline-size;
+  container-name: #{map.get(v.$container-names, footer)};
+}

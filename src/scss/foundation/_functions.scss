@@ -1,0 +1,82 @@
+@use "sass:map";
+@use "sass:math";
+@use "sass:meta";
+@use "variables" as v;
+
+// ================================
+// ユーティリティ関数
+// ================================
+
+// ピクセル値から数値を取得
+@function strip-unit($value) {
+  @if meta.type-of($value) == "number" and not math.is-unitless($value) {
+    @return math.div($value, ($value * 0 + 1));
+  }
+  @return $value;
+}
+
+// ブレークポイントが存在するかチェック
+@function has-breakpoints($bp-list...) {
+  @each $bp in $bp-list {
+    @if map.has-key(v.$breakpoints, $bp) {
+      @return true;
+    }
+  }
+  @return false;
+}
+
+// 特定のブレークポイントが存在するかチェック
+@function has-breakpoint($bp) {
+  @return map.has-key(v.$breakpoints, $bp);
+}
+
+// コンテナブレークポイントが存在するかチェック
+@function has-container-breakpoints($bp-list...) {
+  @each $bp in $bp-list {
+    @if map.has-key(v.$container-breakpoints, $bp) {
+      @return true;
+    }
+  }
+  @return false;
+}
+
+// 特定のコンテナブレークポイントが存在するかチェック
+@function has-container-breakpoint($bp) {
+  @return map.has-key(v.$container-breakpoints, $bp);
+}
+
+// ピクセル値をcqwに変換（コンテナクエリ用）
+@function to-cqw($px-value, $base-width: 750px, $max-value: null) {
+  $px-num: strip-unit($px-value);
+  $base-num: strip-unit($base-width);
+  
+  @if $max-value {
+    $max-num: strip-unit($max-value);
+    // 正の値の場合はmin、負の値の場合はmaxを使用
+    @if $px-num >= 0 {
+      @return min(calc(#{$px-num} * 100cqw / #{$base-num}), #{$max-num}px);
+    } @else {
+      @return max(calc(#{$px-num} * 100cqw / #{$base-num}), #{$max-num}px);
+    }
+  } @else {
+    @return calc(#{$px-num} * 100cqw / #{$base-num});
+  }
+}
+
+// ピクセル値をvwに変換
+@function to-vw($px-value, $base-width: 750px, $max-value: null) {
+  $px-num: strip-unit($px-value);
+  $base-num: strip-unit($base-width);
+  
+  @if $max-value {
+    $max-num: strip-unit($max-value);
+    // 正の値の場合はmin、負の値の場合はmaxを使用
+    @if $px-num >= 0 {
+      @return min(calc(#{$px-num} * 100vw / #{$base-num}), #{$max-num}px);
+    } @else {
+      @return max(calc(#{$px-num} * 100vw / #{$base-num}), #{$max-num}px);
+    }
+  } @else {
+    @return calc(#{$px-num} * 100vw / #{$base-num});
+  }
+}

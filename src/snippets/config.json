@@ -1,0 +1,10 @@
+{
+  "head-snippet": {
+    "applyTo": ["index.html"],
+    "excludeFrom": []
+  },
+  "body-snippet": {
+    "applyTo": ["index.html"],
+    "excludeFrom": []
+  }
+}

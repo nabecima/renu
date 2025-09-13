@@ -1,0 +1,37 @@
+@use "sass:map";
+@use "../../foundation/variables" as v;
+@use "../../foundation/mixins" as m;
+
+// ================================
+// 画像コンポーネント
+// ================================
+
+// Picture要素（コンテナクエリ版を使用）
+picture {
+  @include m.img-base;
+  @include m.responsive-height(
+    $use-container: true,
+    $container: map.get(v.$container-names, main)
+  );
+
+  img {
+    height: 100%;
+  }
+}
+
+// Picture内にない画像（コンテナクエリ版を使用）
+img:not(picture img) {
+  @include m.responsive-height(
+    $use-container: true,
+    $container: map.get(v.$container-names, main)
+  );
+}
+
+// マージン調整（最初の要素以外）- コンテナクエリ版を使用
+picture:not(:first-of-type),
+img:not(:first-of-type) {
+  @include m.responsive-margin(
+    $use-container: true,
+    $container: map.get(v.$container-names, main)
+  );
+}

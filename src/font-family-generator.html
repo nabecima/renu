@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>フォントファミリー生成ツール</title>
+    <style>
+      :root {
+        --primary-color: #3498db;
+        --secondary-color: #2c3e50;
+        --background-color: #f8f9fa;
+        --border-color: #dee2e6;
+        --shadow-color: rgba(0, 0, 0, 0.1);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: var(--background-color);
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px var(--shadow-color);
+      }
+
+      h1 {
+        color: var(--secondary-color);
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .description {
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .converter {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+      }
+
+      .input-section,
+      .output-section {
+        flex: 1;
+        min-width: 300px;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+      }
+
+      select,
+      input[type="text"] {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 16px;
+      }
+
+      .font-input {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .font-input select {
+        flex: 1;
+      }
+
+      .font-input button {
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+
+      button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #2980b9;
+      }
+
+      .remove-btn {
+        background-color: #e74c3c;
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+
+      .remove-btn:hover {
+        background-color: #c0392b;
+      }
+
+      .add-btn {
+        background-color: #27ae60;
+        margin-top: 10px;
+      }
+
+      .add-btn:hover {
+        background-color: #229954;
+      }
+
+      .generate-btn {
+        background-color: var(--primary-color);
+        margin-top: 20px;
+        width: 100%;
+        padding: 15px;
+        font-size: 18px;
+      }
+
+      .output-box {
+        background-color: #f8f9fa;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 15px;
+        margin-top: 15px;
+        white-space: pre-wrap;
+        font-family: "Courier New", Courier, monospace;
+        min-height: 200px;
+        overflow-y: auto;
+      }
+
+      .copy-btn {
+        background-color: #6c757d;
+        margin-top: 10px;
+        font-size: 14px;
+      }
+
+      .copy-btn:hover {
+        background-color: #5a6268;
+      }
+
+      .separator {
+        margin: 20px 0;
+        border-top: 1px solid var(--border-color);
+      }
+
+      .font-preview {
+        background-color: #f8f9fa;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 15px;
+        margin-top: 15px;
+        font-size: 18px;
+        min-height: 100px;
+      }
+
+      .device-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+      }
+
+      .device-section h4 {
+        margin-bottom: 10px;
+        color: var(--secondary-color);
+      }
+
+      .checkbox-group {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+
+      .checkbox-group label {
+        display: flex;
+        align-items: center;
+        font-weight: normal;
+        margin-bottom: 0;
+        cursor: pointer;
+      }
+
+      .checkbox-group input[type="checkbox"] {
+        margin-right: 5px;
+      }
+
+      @media (max-width: 768px) {
+        .converter {
+          flex-direction: column;
+        }
+        
+        .font-input {
+          flex-direction: column;
+        }
+        
+        .font-input select {
+          margin-bottom: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>フォントファミリー生成ツール</h1>
+      <p class="description">Photoshopで使用したフォントから、デバイス別対応のfont-familyを生成します</p>
+
+      <div class="converter">
+        <div class="input-section">
+          <h2>フォント設定</h2>
+          
+          <div class="form-group">
+            <label>対象デバイス:</label>
+            <div class="checkbox-group">
+              <label><input type="checkbox" id="include-mac" checked> Mac</label>
+              <label><input type="checkbox" id="include-ios" checked> iOS</label>
+              <label><input type="checkbox" id="include-windows" checked> Windows</label>
+              <label><input type="checkbox" id="include-android" checked> Android</label>
+              <label><input type="checkbox" id="include-fallback" checked> フォールバック</label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>フォントリスト:</label>
+            <div id="font-list">
+              <div class="font-input">
+                <select class="font-select">
+                  <option value="">フォントを選択</option>
+                </select>
+                <button type="button" class="remove-btn">削除</button>
+              </div>
+            </div>
+            <button type="button" class="add-btn" id="add-font">フォントを追加</button>
+          </div>
+
+          <button type="button" class="generate-btn" id="generate-btn">font-familyを生成</button>
+        </div>
+
+        <div class="output-section">
+          <h2>生成結果</h2>
+          <div class="form-group">
+            <label for="output">CSS font-family:</label>
+            <div class="output-box" id="output"></div>
+            <button class="copy-btn" id="copy-btn">コピー</button>
+          </div>
+          
+          <div class="form-group">
+            <label for="preview">プレビュー:</label>
+            <div class="font-preview" id="preview">
+              サンプルテキスト - Sample Text - 日本語フォント
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="separator"></div>
+
+      <div class="info">
+        <h3>使用方法</h3>
+        <ol>
+          <li>対象とするデバイスにチェックを入れてください</li>
+          <li>Photoshopで使用したフォントを選択してください</li>
+          <li>必要に応じて複数のフォントを追加できます</li>
+          <li>「font-familyを生成」をクリックして、最適化されたfont-familyを生成します</li>
+          <li>生成されたCSSコードをコピーしてプロジェクトで使用してください</li>
+        </ol>
+      </div>
+    </div>
+
+    <script>
+      // フォントデータベース
+      const FONT_DATABASE = {
+        // 日本語フォント
+        "ヒラギノ角ゴシック": {
+          mac: ["Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3", "Hiragino Sans"],
+          ios: ["Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3"],
+          windows: ["Yu Gothic", "游ゴシック", "Meiryo"],
+          android: ["Noto Sans CJK JP", "Noto Sans JP"],
+          fallback: ["sans-serif"]
+        },
+        "ヒラギノ明朝": {
+          mac: ["Hiragino Mincho ProN", "ヒラギノ明朝 ProN W3", "Hiragino Mincho ProN"],
+          ios: ["Hiragino Mincho ProN", "ヒラギノ明朝 ProN W3"],
+          windows: ["Yu Mincho", "游明朝", "MS PMincho"],
+          android: ["Noto Serif CJK JP", "Noto Serif JP"],
+          fallback: ["serif"]
+        },
+        "游ゴシック": {
+          mac: ["Yu Gothic", "游ゴシック", "Hiragino Kaku Gothic ProN"],
+          ios: ["Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3"],
+          windows: ["Yu Gothic", "游ゴシック", "Yu Gothic Medium", "游ゴシック Medium"],
+          android: ["Noto Sans CJK JP", "Noto Sans JP"],
+          fallback: ["sans-serif"]
+        },
+        "メイリオ": {
+          mac: ["Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3"],
+          ios: ["Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3"],
+          windows: ["Meiryo", "メイリオ"],
+          android: ["Noto Sans CJK JP", "Noto Sans JP"],
+          fallback: ["sans-serif"]
+        },
+        "Noto Sans JP": {
+          mac: ["Noto Sans JP", "Hiragino Kaku Gothic ProN"],
+          ios: ["Noto Sans JP", "Hiragino Kaku Gothic ProN"],
+          windows: ["Noto Sans JP", "Yu Gothic", "Meiryo"],
+          android: ["Noto Sans CJK JP", "Noto Sans JP"],
+          fallback: ["sans-serif"]
+        },
+        "Zen Kaku Gothic New": {
+          mac: ["Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN"],
+          ios: ["Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN"],
+          windows: ["Zen Kaku Gothic New", "Yu Gothic", "Meiryo"],
+          android: ["Zen Kaku Gothic New", "Noto Sans CJK JP"],
+          fallback: ["sans-serif"]
+        },
+        
+        // 英語フォント
+        "Helvetica": {
+          mac: ["Helvetica", "Helvetica Neue"],
+          ios: ["Helvetica", "Helvetica Neue"],
+          windows: ["Arial", "Helvetica"],
+          android: ["Roboto", "Arial"],
+          fallback: ["sans-serif"]
+        },
+        "Arial": {
+          mac: ["Arial", "Helvetica"],
+          ios: ["Arial", "Helvetica"],
+          windows: ["Arial"],
+          android: ["Roboto", "Arial"],
+          fallback: ["sans-serif"]
+        },
+        "Times New Roman": {
+          mac: ["Times", "Times New Roman"],
+          ios: ["Times", "Times New Roman"],
+          windows: ["Times New Roman"],
+          android: ["Times", "serif"],
+          fallback: ["serif"]
+        },
+        "Georgia": {
+          mac: ["Georgia"],
+          ios: ["Georgia"],
+          windows: ["Georgia"],
+          android: ["Georgia", "serif"],
+          fallback: ["serif"]
+        },
+        "Roboto": {
+          mac: ["Roboto", "Arial", "Helvetica"],
+          ios: ["Roboto", "Arial", "Helvetica"],
+          windows: ["Roboto", "Arial"],
+          android: ["Roboto"],
+          fallback: ["sans-serif"]
+        },
+        "San Francisco": {
+          mac: ["-apple-system", "BlinkMacSystemFont", "Helvetica Neue"],
+          ios: ["-apple-system", "BlinkMacSystemFont", "Helvetica Neue"],
+          windows: ["Segoe UI", "Arial"],
+          android: ["Roboto", "Arial"],
+          fallback: ["sans-serif"]
+        },
+        "Segoe UI": {
+          mac: ["-apple-system", "BlinkMacSystemFont", "Helvetica Neue"],
+          ios: ["-apple-system", "BlinkMacSystemFont", "Helvetica Neue"],
+          windows: ["Segoe UI"],
+          android: ["Roboto", "Arial"],
+          fallback: ["sans-serif"]
+        }
+      };
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // 要素の取得
+        const fontListContainer = document.getElementById("font-list");
+        const addFontBtn = document.getElementById("add-font");
+        const generateBtn = document.getElementById("generate-btn");
+        const outputBox = document.getElementById("output");
+        const previewBox = document.getElementById("preview");
+        const copyBtn = document.getElementById("copy-btn");
+        
+        // デバイス選択チェックボックス
+        const includeMac = document.getElementById("include-mac");
+        const includeIOS = document.getElementById("include-ios");
+        const includeWindows = document.getElementById("include-windows");
+        const includeAndroid = document.getElementById("include-android");
+        const includeFallback = document.getElementById("include-fallback");
+
+        // フォントセレクトオプションを初期化
+        function initializeFontOptions() {
+          const fontOptions = Object.keys(FONT_DATABASE).sort();
+          const selects = document.querySelectorAll(".font-select");
+          
+          selects.forEach(select => {
+            // 既存のオプションをクリア（最初のプレースホルダーは残す）
+            while (select.children.length > 1) {
+              select.removeChild(select.lastChild);
+            }
+            
+            // フォントオプションを追加
+            fontOptions.forEach(font => {
+              const option = document.createElement("option");
+              option.value = font;
+              option.textContent = font;
+              select.appendChild(option);
+            });
+          });
+        }
+
+        // フォント入力フィールドを追加
+        function addFontInput() {
+          const fontInput = document.createElement("div");
+          fontInput.className = "font-input";
+          fontInput.innerHTML = `
+            <select class="font-select">
+              <option value="">フォントを選択</option>
+            </select>
+            <button type="button" class="remove-btn">削除</button>
+          `;
+          
+          fontListContainer.appendChild(fontInput);
+          
+          // 削除ボタンのイベントリスナーを追加
+          const removeBtn = fontInput.querySelector(".remove-btn");
+          removeBtn.addEventListener("click", function () {
+            if (fontListContainer.children.length > 1) {
+              fontInput.remove();
+            }
+          });
+          
+          // 新しいセレクトボックスにオプションを追加
+          initializeFontOptions();
+        }
+
+        // フォントファミリーを生成
+        function generateFontFamily() {
+          const selectedFonts = [];
+          const fontSelects = document.querySelectorAll(".font-select");
+          
+          // 選択されたフォントを取得
+          fontSelects.forEach(select => {
+            if (select.value) {
+              selectedFonts.push(select.value);
+            }
+          });
+          
+          if (selectedFonts.length === 0) {
+            outputBox.textContent = "フォントを選択してください";
+            return;
+          }
+          
+          // デバイス別フォントリストを生成
+          const deviceFonts = {
+            mac: [],
+            ios: [],
+            windows: [],
+            android: [],
+            fallback: []
+          };
+          
+          selectedFonts.forEach(font => {
+            if (FONT_DATABASE[font]) {
+              const fontData = FONT_DATABASE[font];
+              
+              if (includeMac.checked) {
+                deviceFonts.mac.push(...fontData.mac);
+              }
+              if (includeIOS.checked) {
+                deviceFonts.ios.push(...fontData.ios);
+              }
+              if (includeWindows.checked) {
+                deviceFonts.windows.push(...fontData.windows);
+              }
+              if (includeAndroid.checked) {
+                deviceFonts.android.push(...fontData.android);
+              }
+              if (includeFallback.checked) {
+                deviceFonts.fallback.push(...fontData.fallback);
+              }
+            }
+          });
+          
+          // 重複を除去して統合
+          const allFonts = [
+            ...new Set([
+              ...deviceFonts.mac,
+              ...deviceFonts.ios,
+              ...deviceFonts.windows,
+              ...deviceFonts.android,
+              ...deviceFonts.fallback
+            ])
+          ];
+          
+          // CSS font-familyを生成
+          const fontFamily = allFonts
+            .map(font => {
+              // スペースを含むフォント名をクォートで囲む
+              if (font.includes(" ") || font.includes("-")) {
+                return `"${font}"`;
+              }
+              return font;
+            })
+            .join(", ");
+          
+          const cssOutput = `font-family: ${fontFamily};`;
+          
+          // 出力を更新
+          outputBox.textContent = cssOutput;
+          
+          // プレビューを更新
+          previewBox.style.fontFamily = fontFamily;
+        }
+
+        // コピー機能
+        copyBtn.addEventListener("click", function () {
+          const text = outputBox.textContent;
+          
+          if (text && text !== "フォントを選択してください") {
+            navigator.clipboard.writeText(text)
+              .then(() => {
+                const originalText = this.textContent;
+                this.textContent = "コピーしました！";
+                setTimeout(() => {
+                  this.textContent = originalText;
+                }, 1500);
+              })
+              .catch((err) => {
+                console.error("Failed to copy text: ", err);
+              });
+          }
+        });
+
+        // イベントリスナーを追加
+        addFontBtn.addEventListener("click", addFontInput);
+        generateBtn.addEventListener("click", generateFontFamily);
+        
+        // 初期化
+        initializeFontOptions();
+        
+        // 初期削除ボタンのイベントリスナーを追加
+        const initialRemoveBtn = document.querySelector(".remove-btn");
+        initialRemoveBtn.addEventListener("click", function () {
+          if (fontListContainer.children.length > 1) {
+            this.parentElement.remove();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
