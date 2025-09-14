@@ -24,7 +24,7 @@ import {
   convertPathToWebP,
   logWebPConversion,
   logPreloadLinks,
-  logSnippetInsertion
+  logSnippetInsertion,
 } from "../html-utils.js";
 import { getImageDimensions, createPreloadLink } from "../image-utils.js";
 
@@ -55,8 +55,9 @@ export function html() {
   const snippetConfig = buildMode.insertSnippets ? loadSnippetConfig() : null;
 
   // paths.html.srcが関数の場合は実行して配列を取得
-  const htmlSource = typeof paths.html.src === 'function' ? paths.html.src() : paths.html.src;
-  
+  const htmlSource =
+    typeof paths.html.src === "function" ? paths.html.src() : paths.html.src;
+
   let stream = gulp.src(htmlSource, { allowEmpty: true });
 
   // サーブモード以外（build/dev）時のみHTML変換処理
@@ -79,7 +80,7 @@ export function html() {
         // cheerioでHTMLを解析
         const $ = cheerio.load(content, {
           decodeEntities: false, // HTMLエンティティをデコードしない
-          xmlMode: false
+          xmlMode: false,
         });
 
         // スニペット挿入フラグが有効な場合のみスニペットを挿入
@@ -93,7 +94,9 @@ export function html() {
           const bodySnippets = [];
 
           // 各スニペットについて処理とグループ化
-          for (const [snippetName, snippetContent] of Object.entries(snippets)) {
+          for (const [snippetName, snippetContent] of Object.entries(
+            snippets
+          )) {
             // このファイルにスニペットを適用するかチェック
             if (shouldApplySnippet(snippetName, filePath, snippetConfig)) {
               // スニペットの挿入先を判定
@@ -104,9 +107,19 @@ export function html() {
               const position = getSnippetPosition(snippetName, snippetConfig);
 
               if (targetTag === "head") {
-                headSnippets.push({ name: snippetName, content: snippetContent, priority, position });
+                headSnippets.push({
+                  name: snippetName,
+                  content: snippetContent,
+                  priority,
+                  position,
+                });
               } else if (targetTag === "body") {
-                bodySnippets.push({ name: snippetName, content: snippetContent, priority, position });
+                bodySnippets.push({
+                  name: snippetName,
+                  content: snippetContent,
+                  priority,
+                  position,
+                });
               }
             }
           }
@@ -122,7 +135,13 @@ export function html() {
             } else {
               head.prepend(snippet.content);
             }
-            logSnippetInsertion(snippet.name, "head", filePath, snippet.priority, snippet.position);
+            logSnippetInsertion(
+              snippet.name,
+              "head",
+              filePath,
+              snippet.priority,
+              snippet.position
+            );
           }
 
           // bodyスニペットの挿入
@@ -132,10 +151,20 @@ export function html() {
             } else {
               body.prepend(snippet.content);
             }
-            logSnippetInsertion(snippet.name, "body", filePath, snippet.priority, snippet.position);
+            logSnippetInsertion(
+              snippet.name,
+              "body",
+              filePath,
+              snippet.priority,
+              snippet.position
+            );
           }
         } else {
-          log("HTML", `${colors.yellow}${filePath}${colors.reset} にスニペットは挿入されません`, "info");
+          log(
+            "HTML",
+            `${colors.yellow}${filePath}${colors.reset} にスニペットは挿入されません`,
+            "info"
+          );
         }
 
         // 画像処理のPromiseを格納する配列
@@ -145,18 +174,23 @@ export function html() {
         // 変換1: imgタグのsrc属性を変換（common以外、faviconを除く）
         $("img").each(function () {
           const src = $(this).attr("src");
-          const parentLink = $(this).parent('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]');
+          const parentLink = $(this).parent(
+            'link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]'
+          );
           const isInHead = $(this).parents("head").length > 0;
 
           // 変換対象外の場合はスキップ
-          if (shouldSkipImageConversion(src, isInHead) || parentLink.length > 0) {
+          if (
+            shouldSkipImageConversion(src, isInHead) ||
+            parentLink.length > 0
+          ) {
             return;
           }
 
           // fetchpriority と loading 属性を追加
           const isInHeader = $(this).parents("header").length > 0;
           const isInFv = $(this).parents(".fv, .p-fv").length > 0;
-          
+
           if (isInHeader || isInFv) {
             // header または .fv 内の画像には fetchpriority="high" を付与
             $(this).attr("fetchpriority", "high");
@@ -175,12 +209,14 @@ export function html() {
             const imgPath = path.join(paths.src, src);
 
             // width/height属性を追加するPromise
-            const dimensionPromise = getImageDimensions(imgPath).then((dimensions) => {
-              if (dimensions) {
-                $(this).attr("width", dimensions.width);
-                $(this).attr("height", dimensions.height);
+            const dimensionPromise = getImageDimensions(imgPath).then(
+              (dimensions) => {
+                if (dimensions) {
+                  $(this).attr("width", dimensions.width);
+                  $(this).attr("height", dimensions.height);
+                }
               }
-            });
+            );
 
             imagePromises.push(dimensionPromise);
           }
@@ -199,7 +235,7 @@ export function html() {
           // fetchpriority と loading 属性を追加（pictureタグの親要素を基準に判定）
           const isInHeader = $(this).parents("header").length > 0;
           const isInFv = $(this).parents(".fv, .p-fv").length > 0;
-          
+
           if (isInHeader || isInFv) {
             // header または .fv 内の画像には fetchpriority="high" を付与
             $(this).attr("fetchpriority", "high");
@@ -218,12 +254,14 @@ export function html() {
             const imgPath = path.join(paths.src, srcset);
 
             // width/height属性を追加するPromise
-            const dimensionPromise = getImageDimensions(imgPath).then((dimensions) => {
-              if (dimensions) {
-                $(this).attr("width", dimensions.width);
-                $(this).attr("height", dimensions.height);
+            const dimensionPromise = getImageDimensions(imgPath).then(
+              (dimensions) => {
+                if (dimensions) {
+                  $(this).attr("width", dimensions.width);
+                  $(this).attr("height", dimensions.height);
+                }
               }
-            });
+            );
 
             imagePromises.push(dimensionPromise);
           }
@@ -233,11 +271,17 @@ export function html() {
         logWebPConversion(webpConversionCount, filePath);
 
         // headタグ内のlink要素（favicon）はスキップ
-        $('head link[rel="icon"], head link[rel="shortcut icon"], head link[rel="apple-touch-icon"]').each(function () {
+        $(
+          'head link[rel="icon"], head link[rel="shortcut icon"], head link[rel="apple-touch-icon"]'
+        ).each(function () {
           const href = $(this).attr("href");
           if (href) {
             // faviconの拡張子は変換しない（元のままにする）
-            log("HTML", `ファビコン変換をスキップ: ${colors.cyan}${href}`, "info");
+            log(
+              "HTML",
+              `ファビコン変換をスキップ: ${colors.cyan}${href}`,
+              "info"
+            );
           }
         });
 
@@ -245,7 +289,7 @@ export function html() {
         const preloadLinks = [];
 
         // .fv内の画像を探してプリロード用のlinkを作成
-        $(".fv img, .p-fv img").each(function () {
+        $(".fv img, .p-fv img, .sticky img").each(function () {
           const src = $(this).attr("src");
           if (src) {
             preloadLinks.push(createPreloadLink(src));
@@ -305,7 +349,11 @@ export function html() {
               cleanedHtml = formatPreloadLinks(cleanedHtml);
 
               file.contents = Buffer.from(cleanedHtml);
-              log("HTML", `${colors.yellow}${filePath}${colors.reset} の整形が完了しました`, "success");
+              log(
+                "HTML",
+                `${colors.yellow}${filePath}${colors.reset} の整形が完了しました`,
+                "success"
+              );
               cb(null, file);
             });
           })
@@ -324,7 +372,13 @@ export function html() {
     ? options.html.development // 開発モード用のオプション - コメントのみ削除
     : options.html.production; // 本番モード用の完全な圧縮オプション
 
-  log("HTML", skipMinify ? `HTMLからコメントを削除しています` : `HTMLファイルを圧縮しています...`, "info");
+  log(
+    "HTML",
+    skipMinify
+      ? `HTMLからコメントを削除しています`
+      : `HTMLファイルを圧縮しています...`,
+    "info"
+  );
 
   stream = stream.pipe(htmlmin(htmlminOptions).on("error", handleError));
 
