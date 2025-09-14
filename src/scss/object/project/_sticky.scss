@@ -1,0 +1,21 @@
+@use "../../foundation/" as *;
+
+.sticky {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  translate: -50% 0;
+  z-index: 10;
+  @include responsive-value(padding-top, 13px, 750px, 13px);
+  @include responsive-value(padding-bottom, 13px, 750px, 13px);
+  width: min(750px, 100%);
+  background-color: #fff;
+
+  .btn {
+    position: static;
+    display: block;
+    margin: 0 auto;
+    width: 60.5333%;
+    translate: none;
+  }
+}

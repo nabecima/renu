@@ -1,5 +1,4 @@
 @use "mixins" as m;
-
 // ================================
 // 基本スタイル
 // ================================
@@ -8,7 +7,8 @@ html {
   font-size: 10px;
 }
 
-main{
+main {
+  @include m.responsive-value(padding-bottom, 145px, 750px, 145px);
   overflow: hidden;
 }
 
