@@ -22,6 +22,9 @@
 // レスポンシブスムーススクロール機能
 // import ResponsiveSmoothScroll from './modules/responsive-smooth-scroll/ResponsiveSmoothScroll.js';
 
+// カウントダウンタイマー機能
+import CountdownTimer from './modules/countdown-timer/CountdownTimer.js';
+
 // === ユーティリティのインポート ===
 // import { debounce } from './utils/debounce.js';
 // import { throttle } from './utils/throttle.js';
@@ -63,47 +66,12 @@
 // console.log('ウィンドウサイズが変更されました');
 // }, 250);
 
-// === カウントダウン機能 ===
-function initCountdown() {
-  const targetDate = new Date("2025-09-22T00:00:00").getTime();
-
-  const saleElements = document.querySelectorAll(".sale");
-  
-  saleElements.forEach(saleEl => {
-    const dayEl = saleEl.querySelector(".day");
-    const hourEl = saleEl.querySelector(".hour");
-    const minEl = saleEl.querySelector(".min");
-    const secEl = saleEl.querySelector(".sec");
-
-    if (!dayEl || !hourEl || !minEl || !secEl) return;
-
-    function updateCountdown() {
-      const now = new Date().getTime();
-      const distance = targetDate - now;
-
-      if (distance < 0) {
-        dayEl.textContent = "00";
-        hourEl.textContent = "00";
-        minEl.textContent = "00";
-        secEl.textContent = "00";
-        return;
-      }
-
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor(
-        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-      );
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      dayEl.textContent = days.toString().padStart(2, "0");
-      hourEl.textContent = hours.toString().padStart(2, "0");
-      minEl.textContent = minutes.toString().padStart(2, "0");
-      secEl.textContent = seconds.toString().padStart(2, "0");
-    }
-
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
+// === カウントダウンタイマーの初期化 ===
+function initCountdownTimer() {
+  new CountdownTimer({
+    duration: 60 * 60 * 1000, // 60分
+    selector: '.countdown-timer',
+    debug: false
   });
 }
 
@@ -111,7 +79,7 @@ function initCountdown() {
 
 // deferで読み込まれるため、即座に初期化を実行
 // initializeApp();
-initCountdown();
+initCountdownTimer();
 
 // リサイズイベントリスナーの登録
 // window.addEventListener('resize', handleResize);
